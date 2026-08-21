@@ -33,7 +33,7 @@ jobs:
         run: npm ci
 
       - name: Install Capacitor Android
-        run: npm install --no-save --ignore-scripts @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest @capacitor/assets@latest
+        run: npm install --no-save @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest @capacitor/assets@latest
 
       - name: Verify bundled web app
         run: |
