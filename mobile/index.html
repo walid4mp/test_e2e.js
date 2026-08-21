@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<title>WarHex AI Studio</title>
+<link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="icon.png">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><div class="logo">✦</div><div><b>WarHex AI Studio</b><small>مساعد ذكاء اصطناعي</small></div></div>
+    <button id="settingsBtn" class="iconBtn" aria-label="الإعدادات">⚙</button>
+  </header>
+
+  <main id="chat" class="chat">
+    <section id="welcome" class="welcome">
+      <div class="heroIcon">✦</div>
+      <h1>مرحبًا بك في WarHex AI Studio</h1>
+      <p>مساعد ذكي للكتابة، البرمجة، التلخيص، الترجمة وتحليل الأفكار.</p>
+      <div class="quick">
+        <button data-prompt="اكتب لي خطة احترافية لمشروعي">خطة مشروع</button>
+        <button data-prompt="اشرح لي هذا الكود بطريقة بسيطة">شرح كود</button>
+        <button data-prompt="لخص لي هذا النص">تلخيص</button>
+        <button data-prompt="ترجم هذا النص إلى العربية">ترجمة</button>
+      </div>
+    </section>
+  </main>
+
+  <form id="composer" class="composer">
+    <textarea id="input" rows="1" placeholder="اكتب رسالتك إلى الذكاء الاصطناعي..."></textarea>
+    <button id="send" class="send" type="submit">➤</button>
+  </form>
+  <div class="hint">المحادثات تُحفظ محليًا على جهازك.</div>
+</div>
+
+<div id="settings" class="modal hidden">
+  <div class="sheet">
+    <button id="closeSettings" class="close">×</button>
+    <h2>الإعدادات</h2>
+    <label>مزود الذكاء الاصطناعي</label>
+    <select id="provider"><option value="together">Together AI</option></select>
+    <label>API Key</label>
+    <input id="apiKey" type="password" placeholder="أدخل مفتاحك الخاص">
+    <label>النموذج</label>
+    <input id="model" value="meta-llama/Llama-3.3-70B-Instruct-Turbo-Free">
+    <button id="saveSettings" class="primary">حفظ الإعدادات</button>
+    <p class="note">لأن التطبيق مستقل عن الخادم، يتم استخدام مفتاحك من جهازك مباشرة. لا تضع مفتاحًا سريًا مشتركًا داخل APK.</p>
+  </div>
+</div>
+
+<div id="plans" class="plans hidden">
+  <div class="sheet">
+    <button id="closePlans" class="close">×</button>
+    <h2>الاشتراكات</h2>
+    <div class="plan"><b>Starter</b><strong>$9 / شهر</strong><span>محادثات أساسية + حفظ محلي</span><button>اشتراك</button></div>
+    <div class="plan popular"><em>الأكثر شعبية</em><b>Pro</b><strong>$19 / شهر</strong><span>استخدام أعلى ومزايا متقدمة</span><button>اشتراك</button></div>
+    <div class="plan"><b>Pro سنوي</b><strong>$190 / سنة</strong><span>خصم سنوي</span><button>اشتراك</button></div>
+    <p class="note">أزرار الاشتراك هنا واجهة فقط. ربط الدفع الحقيقي يحتاج بوابة دفع وحسابًا آمنًا على خادم.</p>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

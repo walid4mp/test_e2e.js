@@ -1,0 +1,108 @@
+name: Build Standalone Android APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    name: Build installable app-release.apk
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Capacitor Android
+        run: npm install --no-save --ignore-scripts @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest @capacitor/assets@latest
+
+      - name: Verify bundled web app
+        run: |
+          test -f mobile/index.html
+          test -f mobile/styles.css
+          test -f mobile/app.js
+
+      - name: Configure Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Create Android project
+        run: npx cap add android
+
+      - name: Generate Android app icons
+        run: npx @capacitor/assets generate --android
+
+      - name: Sync bundled web app
+        run: npx cap sync android
+
+      - name: Make Gradle executable
+        run: chmod +x android/gradlew
+
+      - name: Build unsigned release APK
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Create temporary signing key
+        run: |
+          keytool -genkeypair \
+            -v \
+            -keystore "$RUNNER_TEMP/release.keystore" \
+            -storepass android \
+            -keypass android \
+            -alias release \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=WarHex AI Studio, OU=Android, O=WarHex, L=Algiers, ST=Algeria, C=DZ"
+
+      - name: Align and sign release APK
+        run: |
+          UNSIGNED="android/app/build/outputs/apk/release/app-release-unsigned.apk"
+          if [ ! -f "$UNSIGNED" ]; then
+            echo "Unsigned release APK not found."
+            find android/app/build/outputs -type f -name '*.apk' -print
+            exit 1
+          fi
+
+          BUILD_TOOLS="${ANDROID_HOME}/build-tools/$(ls "${ANDROID_HOME}/build-tools" | sort -V | tail -n 1)"
+          "$BUILD_TOOLS/zipalign" -f -p 4 \
+            "$UNSIGNED" \
+            "$RUNNER_TEMP/app-release-aligned.apk"
+
+          "$BUILD_TOOLS/apksigner" sign \
+            --ks "$RUNNER_TEMP/release.keystore" \
+            --ks-pass pass:android \
+            --key-pass pass:android \
+            --ks-key-alias release \
+            --out "$RUNNER_TEMP/app-release.apk" \
+            "$RUNNER_TEMP/app-release-aligned.apk"
+
+          "$BUILD_TOOLS/apksigner" verify --verbose "$RUNNER_TEMP/app-release.apk"
+          cp "$RUNNER_TEMP/app-release.apk" ./app-release.apk
+          ls -lh ./app-release.apk
+
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: app-release.apk
+          if-no-files-found: error
+          retention-days: 30
